@@ -1,0 +1,9 @@
+[DEFAULT]
+authority_url = https://login.microsoftonline.com/TENANT_GUID
+graph_resource = AppId for Azure AD
+tenant_guid = GUID of Tenant
+graph_url = https://graph.microsoft.com
+outlook_url = https://outlook.office.com
+certificate_key = xxxxxxxxxxx (from azure cert import)
+api_version = beta
+url_filter = ["www.facebook.com", "twitter.com", "www.linkedin.com", "www.instagram.com", "www.youtube.com"] or [] for null
