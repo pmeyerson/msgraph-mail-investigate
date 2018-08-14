@@ -185,7 +185,7 @@ def main():
     if args.end:
         QUERY_TIME_END = args.end
     else:
-        QUERY_TIME_END = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
+        QUERY_TIME_END = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     if args.output:
         OUTPUT_FILE = args.output
