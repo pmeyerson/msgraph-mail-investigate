@@ -19,6 +19,7 @@
  -s, --silent           No console output
  -t, --token-only       print out token and quit
  --token-only-outlook   print out token for legacy outlook api and quit
+ --nopii                supress output of email addresses
 
  CSV File format is: url,domain,receivedDateTime,mailId,subject,sender
     url: the full url in the body of a message marked as read

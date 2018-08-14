@@ -127,6 +127,7 @@ def main():
     parser.add_argument('-t', '--token-only', help='print out token and quit', action="store_true")
     parser.add_argument('--token-only-outlook', help='print out token to legacy outlook api and quit',
                         action="store_true")
+    parser.add_argument('--nopii', action="store_true", help='do not output any email addresses')
     args = parser.parse_args()
 
     # Ensure enough paramters are specified
@@ -229,8 +230,14 @@ def main():
                      '/mailFolders?$filter=displayName eq \'Sent Items\'&$select=id', headers=headers)
 
     if r.status_code != 200:
-        print("ERROR failed to retrieve mailFolders for user " + QUERY_USER)
-        print("  query: " + str(r.url))
+        if not args.nopii:
+            print("ERROR failed to retrieve mailFolders for user " + QUERY_USER)
+        else:
+            print("ERROR failed to retrieve mailFolders")
+
+        if not args.nopii:
+            print("  query: " + str(r.url))
+
         sys.exit(1)
     sentFolderId = r.json()['value'][0]['id']
     urlFolderFilter += '\'' + sentFolderId + '\''
@@ -296,8 +303,12 @@ def main():
             for item in links:
                 urlobj = urlparse(item)
 
-                all_links.append([item, urlobj.netloc, message[0]['receivedDateTime'], message[0]['id'], message[0]['subject'],
-                                  message[0]['from']['emailAddress']])
+                if not args.nopii:
+                    all_links.append([item, urlobj.netloc, message[0]['receivedDateTime'], message[0]['id'],
+                                      message[0]['subject'], message[0]['from']['emailAddress']])
+                else:
+                    all_links.append([item, urlobj.netloc, message[0]['receivedDateTime'], message[0]['id'],
+                                      message[0]['subject']])
 
     if not SILENT:
         print(" Found " + str(emailswithlinks) + " emails with links and " + str(len(all_links)) + " links")
@@ -335,8 +346,13 @@ def main():
     # no file output if no results
     if len(filteredlinks) > 0:
         with open(OUTPUT_FILE, 'w', encoding="utf-8") as f:
-            fieldnames = ['url', 'domain', 'receivedDateTime', 'mailId', 'subject', 'sender']
-            w = csv.writer(f, lineterminator='\n')
+
+            if not args.nopii:
+                fieldnames = ['url', 'domain', 'receivedDateTime', 'mailId', 'subject', 'sender']
+            else:
+                fieldnames = ['url', 'domain', 'receivedDateTime', 'mailId', 'subject']
+
+            w = csv.writer(f, lineterminator='\n', delimiter='|')
             w.writerow(fieldnames)
 
             for key, value in filteredlinks.items():
