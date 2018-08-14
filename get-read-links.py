@@ -152,7 +152,7 @@ def main():
 
     # Ensure enough paramters are specified
     if not (args.token_only or args.token_only_outlook):
-        if not args.user and args.start and args.certificate:
+        if not (args.user and args.start and args.certificate):
             print("ERROR: When not running in --token-only, the following arguments are required:")
             print("--user, --start, --certificate")
             sys.exit(1)
@@ -161,11 +161,6 @@ def main():
         if not args.certificate:
             print("ERROR: When running --token-only you must specify --certificate as well")
             sys.exit(1)
-
-    # define query constants
-    url1 = '/messages?$filter=receivedDateTime ge '
-    url2 = ' and receivedDateTime le '
-    url3 = '&select=id,lastModifiedDateTime,receivedDateTime,hasAttachments,internetMessageId,subject,isRead, sender, from, toRecipients,replyTo'
 
     # Load variables
 
@@ -178,6 +173,14 @@ def main():
     SILENT = args.silent
     CERT_FILE = args.certificate
     CERT_PWD = args.cert_password
+
+    # define query constants
+    url1 = '/messages?$filter=receivedDateTime ge '
+    url2 = ' and receivedDateTime le '
+    urlFolderFilter = ' and parentFolderId ne '
+    url4 = '&$select=id,lastModifiedDateTime,receivedDateTime,hasAttachments,internetMessageId,subject,isRead,sender,' \
+           'from,toRecipients,replyTo'
+
 
     if args.end:
         QUERY_TIME_END = args.end
@@ -231,20 +234,26 @@ def main():
     context = adal.AuthenticationContext(AUTHORITY_URL, validate_authority=TENANT_GUID != 'adfs')
 
     # Get the GRAPH token or legacy Outlook token if requested.
-    if not args.token_only_outlook:
-        token = context.acquire_token_with_client_certificate(GRAPH_URL, APPLICATION_GUID, key, CERTIFICATE_KEY)
-    elif args.token_only_outlook:
+    if args.token_only_outlook:
         token = context.acquire_token_with_client_certificate(OUTLOOK_URL, APPLICATION_GUID, key, CERTIFICATE_KEY)
-
+    else:
+        token = context.acquire_token_with_client_certificate(GRAPH_URL, APPLICATION_GUID, key, CERTIFICATE_KEY)
 
     if TOKEN_ONLY or args.token_only_outlook:
         print(token)
         print("Done")
         sys.exit(0)
 
+    # get FolderID of SentItems folder
     headers = {'Authorization': 'Bearer ' + token['accessToken']}
+    r = requests.get(GRAPH_URL + '/' + API_VERSION + '/users/' + QUERY_USER +
+                     '/mailFolders?$filter=displayName eq \'Sent Items\'&$select=id', headers=headers)
+    sentFolderId = r.json()['value'][0]['id']
+    urlFolderFilter += '\'' + sentFolderId + '\''
+
+
     endpoint_url = GRAPH_URL + '/' + API_VERSION + '/users/' + QUERY_USER + url1 + QUERY_TIME_START + \
-                   url2 + QUERY_TIME_END + url3
+                   url2 + QUERY_TIME_END + urlFolderFilter + url4
 
     if not SILENT:
         print(time.ctime() + ": Fetching list of emails")
@@ -268,6 +277,11 @@ def main():
     headers['Prefer'] = "outlook.body-content-type=\"text\""
 
     for email in read:
+
+        # Need to filter out SENT messages!
+
+
+
         endpoint_url = GRAPH_URL + '/' + API_VERSION + '/users/' + QUERY_USER + '/messages/' + \
                        email['id'] + \
                        '?$select=id,lastModifiedDateTime,receivedDateTime,hasAttachments,internetMessageId,subject,' \
@@ -275,7 +289,7 @@ def main():
                        'bccRecipients,replyTo,body'
 
         r = requests.get(endpoint_url, headers=headers)
-        read_data = get_paged_data(r, headers)
+        read_data.append(get_paged_data(r, headers))
 
     if not SILENT:
         print(time.ctime() + ": " + str(len(read_data)) + " messages retrieved.")
@@ -286,14 +300,20 @@ def main():
     # parse out the URLs from the message body
     for message in read_data:
         # scan for a URL in the message
-        if "://" in message['body']['content']:
+        if "://" in message[0]['body']['content']:
             emailswithlinks += 1
-            links = get_links(message['body']['content'])
+
+            try:
+
+                links = get_links(message[0]['body']['content'])
+            except:
+                print("call to get_links failed: " + str(message))
+
             for item in links:
                 urlobj = urlparse(item)
 
-                all_links.append([item, urlobj.netloc, message['receivedDateTime'], message['id'], message['subject'],
-                                  message['from']['emailAddress']])
+                all_links.append([item, urlobj.netloc, message[0]['receivedDateTime'], message[0]['id'], message[0]['subject'],
+                                  message[0]['from']['emailAddress']])
 
     if not SILENT:
         print(" Found " + str(emailswithlinks) + " emails with links and " + str(len(all_links)) + " links")
@@ -318,7 +338,9 @@ def main():
             elif urlobj.netloc not in filteredlinks:
                 filteredlinks[urlobj.netloc] = [link]
 
+
     if not SILENT:
+        pp = pprint.PrettyPrinter(width=80)
         print("  filtered out " + str(len(all_links) - len(all_links)) + " out of " + str(len(all_links)))
 
         for key in sorted(filteredlinks.items()):
@@ -328,7 +350,7 @@ def main():
 
     # no file output if no results
     if len(filteredlinks) > 0:
-        with open(OUTPUT_FILE, 'w') as f:
+        with open(OUTPUT_FILE, 'w', encoding="utf-8") as f:
             fieldnames = ['url', 'domain', 'receivedDateTime', 'mailId', 'subject', 'sender']
             w = csv.writer(f, lineterminator='\n')
             w.writerow(fieldnames)
