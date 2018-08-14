@@ -15,15 +15,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
 """
- This is setup to use certificate based authentication.  It is possible to use a self signed cert.
- Create an application registration in Azure -> App Registrations -> New application registration.
- The Endpoints button next to new is helpful.
-
- You'll need to upload your certificate, and note your thumbprint.
- The application will also require an azure admin to assign the following required application permissions:
-    * Read mail in all mailboxes
-
-You'll also need to fill out config.template and save as config.ini	
+Scan a single user's office 365 email account for read emails since the specified date and before an optional end date.
+Export a list of URL links in format: url,domain,receivedDateTime,mailId,subject,sender
 	
 Usage:
   get-read-links -u pwnd@contoso.com -c cert1.pem -s 2018-08-01T6:00:00Z -e 2018-08-03T20:00:00Z
@@ -31,20 +24,6 @@ Usage:
   This will scan pwnd@contoso.com for all messages received between the two date times (inclusive)
   and return URLs or Fileshare links in the messages read, along with the message metadata all in csv.
 
- Requires python3
- Other useful permissions might be:
-    * read and write all user mailbox settings (inbox rules)
-    * read all usage reports
-    * read all identity risk information
-    * read your organizations security events
-
- Please see the python cryptography package's website for installation instructions.
- Once these application permissions have ben granted by an admin in azure, you should be able to run this against any
- user mailbox.
- 
-
- The information inside such file can be obtained via app registration.
- https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
 """
 
 def get_paged_data(r, headers):
