@@ -128,6 +128,7 @@ def main():
     parser.add_argument('--token-only-outlook', help='print out token to legacy outlook api and quit',
                         action="store_true")
     parser.add_argument('--nopii', action="store_true", help='do not output any email addresses')
+    parser.add_argument('--rules', action="store_true", help='get inbox rules with external forwarding enabled instead')
     args = parser.parse_args()
 
     # Ensure enough paramters are specified
@@ -147,8 +148,7 @@ def main():
     QUERY_TIME_START = args.start
     QUERY_TIME_END = args.end
     QUERY_USER = args.user
-    # manifest_file = args.manifest
-    resource_file = args.resource
+    RESOURCE_FILE = args.resource
     TOKEN_ONLY = args.token_only
     SILENT = args.silent
     CERT_FILE = args.certificate
@@ -161,7 +161,6 @@ def main():
     url4 = '&$select=id,lastModifiedDateTime,receivedDateTime,hasAttachments,internetMessageId,subject,isRead,sender,' \
            'from,toRecipients,replyTo'
 
-
     if args.end:
         QUERY_TIME_END = args.end
     else:
@@ -172,11 +171,11 @@ def main():
     elif not (args.token_only or args.token_only_outlook):
         OUTPUT_FILE = QUERY_USER.split('@')[0] + datetime.datetime.now().strftime("%Y-%m-%dT%H-%M") + ".csv"
 
-    if resource_file:
+    if RESOURCE_FILE:
         config = configparser.ConfigParser()
         try:
 
-            config.read(filenames='config.ini')
+            config.read(filenames=RESOURCE_FILE)
         except IOError:
             print("ERROR reading resource file")
             sys.exit(1)
