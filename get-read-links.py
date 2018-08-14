@@ -248,6 +248,11 @@ def main():
     headers = {'Authorization': 'Bearer ' + token['accessToken']}
     r = requests.get(GRAPH_URL + '/' + API_VERSION + '/users/' + QUERY_USER +
                      '/mailFolders?$filter=displayName eq \'Sent Items\'&$select=id', headers=headers)
+
+    if r.status_code != 200:
+        print("ERROR failed to retrieve mailFolders for user " + QUERY_USER)
+        print("  query: " + str(r.url))
+        sys.exit(1)
     sentFolderId = r.json()['value'][0]['id']
     urlFolderFilter += '\'' + sentFolderId + '\''
 
