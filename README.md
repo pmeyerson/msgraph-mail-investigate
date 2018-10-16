@@ -9,17 +9,17 @@
  This will scan pwnd@contoso.com for all messages received between August first, 6 AM GMT and August third, 8PM GMT, 
  inclusive, and return URLs or fileshare links in the messages read, along with the message metadata all in csv.
 
- -r, --resource         Specify filename for configuration settings.  Default config.ini
- -u, --user             Username of the Office 365 mailbox to investigate. 
- -s, --start            Start time to compare against message received timestamp  Format YYYY-MM-DDTHH:MM:SSZ
- -e, --end              End time to compare against message received timestamp. Format YYYY-MM-DDTHH:MM:SSZ
- -o, --output           Output filename to write.  Defautls to user+timestamp.csv
- -c, --certificate      Local copy of certificate file for authentication.
+ -r, --resource         Specify filename for configuration settings.  Default config.ini  
+ -u, --user             Username of the Office 365 mailbox to investigate.  
+ -s, --start            Start time to compare against message received timestamp  Format YYYY-MM-DDTHH:MM:SSZ  
+ -e, --end              End time to compare against message received timestamp. Format YYYY-MM-DDTHH:MM:SSZ  
+ -o, --output           Output filename to write.  Defautls to user+timestamp.csv  
+ -c, --certificate      Local copy of certificate file for authentication.  
  -p, --cert-password    Certificate password   
- -s, --silent           No console output
- -t, --token-only       print out token and quit
- --token-only-outlook   print out token for legacy outlook api and quit
- --nopii                supress output of email addresses
+ -s, --silent           No console output  
+ -t, --token-only       print out token and quit  
+ --token-only-outlook   print out token for legacy outlook api and quit  
+ --nopii                supress output of email addresses  
 
  CSV File format is: url,domain,receivedDateTime,mailId,subject,sender
     url: the full url in the body of a message marked as read
