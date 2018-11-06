@@ -13,6 +13,11 @@ import json
 @click.option('-u', '--unique', is_flag=True, help='Return unique URLs only.')
 def main(no_junk, path, unique):
     """
+    Parse email metadata and URLs out of .msg files
+
+    :param: no_junk     do not process messages in recipient's junk email folder
+    :param: path        filepath containing .msg files (or export from Content Search)
+    :param: unique      supress duplicate metadata+URL listings in results output
 
     :return:
     """
@@ -188,7 +193,7 @@ def get_links(body):
     if "x-apple-data-detectors" in body:
         pass
 
-    #MATCH_LINK = re.compile("<(\S*\:\/\/\S*)>")
+    #MATCH_LINK = re.compile("<(\S*\:\/\/\S*)>")  # causing issues with python parsing, skip for now
     MATCH_LINK = re.compile("href=\"(\S*\:\/\/\S*)\".*>([^\>]*)<\/a>")
     #MATCH_SHARE = re.compile("(\S*\\\\\S*)")
 
@@ -211,7 +216,7 @@ def get_links(body):
 
 def clean(content):
     """
-
+    Remove all content outside the html <body> tags to make url parsing easier.
     :param content:
     :return:
     """
