@@ -1,7 +1,9 @@
- This script has a few functions:
-  * return a token to microsoft graph for manual investigation in Postman or other API tool
+ These tools has a few functions:
+  * Return a token to microsoft graph for manual investigation in Postman or other API tool
   * Export a CSV with all url links in the specified user's office 365 mailbox.  Caveat:  Messages permanently deleted
     by the user will not have data available to us.
+  * Output a list of urls and email metadata from a directory containing .msg files, recursively using parsefiles.
+    
   
  Usage:
  get-read-links -u pwnd@contoso.com -c cert1.pem -s 2018-08-01T6:00:00Z -e 2018-08-03T20:00:00Z
@@ -36,6 +38,7 @@
   * The applicationId will need "Read mail in all mailboxes" application permission which requires an 
     azure administrator to grant.
   * Fill out config.template with details for your tenancy and save as config.ini  
+  * The parsefiles script does not require a certificate nor an Azure Application/permissions.
  
  This script is setup to use certificate based authentication.  It is possible to use a self signed cert.
  Create an application registration in Azure -> App Registrations -> New application registration.
@@ -57,11 +60,4 @@ References:
 * https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
     
     Info on Azure Authentication library
-  
- 
- Other useful permissions might be:
- 
-    * read and write all user mailbox settings (inbox rules)
-    * read all usage reports
-    * read all identity risk information
-    * read your organizations security events
+    
