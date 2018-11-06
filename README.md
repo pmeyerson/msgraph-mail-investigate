@@ -4,7 +4,11 @@
     by the user will not have data available to us.
   * Output a list of urls and email metadata from a directory containing .msg files, recursively using parsefiles.
     
-  
+ For using the parsefiles utility, here are the reccomended options to use when exporting your Content Search results:
+   * Output options: All items, excluding ones that have unrecognized format..
+   * Export Exchange content as: Individual messages (enable de-dupe if you wish)
+   * Export files in a compressed zip folder if you wish.  Option for single zip file is preferred, if available.
+
  Usage:
  get-read-links -u pwnd@contoso.com -c cert1.pem -s 2018-08-01T6:00:00Z -e 2018-08-03T20:00:00Z
 
