@@ -1,4 +1,4 @@
- These tools has a few functions:
+ The get-read-links tool has a few uses:
   * Return a token to microsoft graph for manual investigation in Postman or other API tool
   * Export a CSV with all url links in the specified user's office 365 mailbox.  Caveat:  Messages permanently deleted
     by the user will not have data available to us.
