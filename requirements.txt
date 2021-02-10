@@ -4,7 +4,7 @@ certifi==2018.4.16
 cffi==1.11.5
 chardet==3.0.4
 configparser==3.5.0
-cryptography==3.2
+cryptography==3.3.2
 idna==2.7
 pycparser==2.18
 PyJWT==1.6.4
